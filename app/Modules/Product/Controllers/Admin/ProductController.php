@@ -6,7 +6,7 @@ use App\Http\Controllers\Controller;
 use App\Models\Category;
 use App\Models\CoCheHoanPhi;
 use App\Models\Product;
-use App\Models\Tag;
+use App\Modules\Tag\Models\Tag;
 use Illuminate\Http\Request;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Cache;

@@ -9,7 +9,7 @@ use App\Modules\Cart\Models\CartItem;
 use App\Modules\Cart\Requests\AddCartItemRequest;
 use App\Modules\Cart\Requests\UpdateCartItemRequest;
 use App\Modules\Cart\Services\CartService;
-use App\Modules\Core\Traits\ApiResponse;
+use App\Modules\Shared\Traits\ApiResponse;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 

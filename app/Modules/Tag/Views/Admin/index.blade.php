@@ -17,7 +17,7 @@
                     <td><strong>{{ $t->name }}</strong></td>
                     <td><small style="color:#8a9bb0">{{ $t->slug }}</small></td>
                     <td>{{ $t->products_count }}</td>
-                    <td><span class="badge {{ $t->status === 'active' ? 'badge-success' : 'badge-danger' }}">{{ $t->status === 'active' ? 'Hoạt động' : 'Ẩn' }}</span></td>
+                    <td><span class="badge {{ $t->status == 1 ? 'badge-success' : 'badge-danger' }}">{{ $t->status == 1 ? 'Hoạt động' : 'Ẩn' }}</span></td>
                     <td>
                         <a href="{{ route('admin.tags.edit', $t) }}" class="btn btn-warning btn-sm"><i class="fas fa-edit"></i></a>
                         <form method="POST" action="{{ route('admin.tags.destroy', $t) }}" style="display:inline" onsubmit="return confirm('Xóa?')">
