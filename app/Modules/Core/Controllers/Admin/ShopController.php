@@ -3,7 +3,7 @@
 namespace App\Modules\Core\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Modules\Category\Models\Category;
 use App\Models\CoCheHoanPhi;
 use App\Models\Product;
 use Illuminate\Http\Request;

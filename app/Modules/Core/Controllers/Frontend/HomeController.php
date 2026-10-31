@@ -3,15 +3,15 @@
 namespace App\Modules\Core\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
-use App\Models\CategoryPost;
-use App\Models\GioiThieu;
-use App\Models\Leader;
+use App\Modules\Category\Models\Category;
+use App\Modules\CategoryPost\Models\CategoryPost;
+use App\Modules\GioiThieu\Models\GioiThieu;
+use App\Modules\Leader\Models\Leader;
 use App\Models\Order;
 use App\Models\Post;
 use App\Models\Product;
 use App\Models\Setting;
-use App\Models\Widget;
+use App\Modules\Widget\Models\Widget;
 
 class HomeController extends Controller
 {

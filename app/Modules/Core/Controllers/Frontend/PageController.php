@@ -3,9 +3,9 @@
 namespace App\Modules\Core\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\ChinhSach;
-use App\Models\GioiThieu;
-use App\Models\Leader;
+use App\Modules\ChinhSach\Models\ChinhSach;
+use App\Modules\GioiThieu\Models\GioiThieu;
+use App\Modules\Leader\Models\Leader;
 
 /**
  * Các trang tĩnh: giới thiệu, liên hệ, trung tâm hỗ trợ, chính sách.

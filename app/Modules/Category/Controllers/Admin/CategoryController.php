@@ -3,13 +3,14 @@
 namespace App\Modules\Category\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\Category;
+use App\Modules\Category\Models\Category;
+use App\Modules\Category\Requests\CategoryRequest;
+use App\Modules\Category\Services\CategoryService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CategoryController extends Controller
 {
-    public function __construct()
+    public function __construct(private readonly CategoryService $categoryService)
     {
         $this->middleware('permission:category.view')->only(['index']);
         $this->middleware('permission:category.create')->only(['create', 'store']);
@@ -19,63 +20,43 @@ class CategoryController extends Controller
 
     public function index(Request $request)
     {
-        $query = Category::with('parent')->whereNull('parent_id');
-        if ($search = $request->search) {
-            $query->where('name', 'like', "%$search%");
-        }
-        $categories = $query->latest()->paginate(20)->withQueryString();
+        $categories = $this->categoryService->list($request->search);
+
         return view('Category::Admin.index', compact('categories'));
     }
 
     public function create()
     {
-        $parents = Category::whereNull('parent_id')->get();
+        $parents = $this->categoryService->rootCategories();
+
         return view('Category::Admin.create', compact('parents'));
     }
 
-    public function store(Request $request)
+    public function store(CategoryRequest $request)
     {
-        $data = $request->validate([
-            'name'      => 'required|max:255',
-            'parent_id' => 'nullable|exists:categories,id',
-            'image'     => 'nullable|image|max:2048',
-            'active'    => 'nullable|boolean',
-        ]);
-        $data['slug']   = Str::slug($data['name']);
-        $data['active'] = $request->boolean('active');
-        if ($request->hasFile('image')) {
-            $data['image'] = cdn_upload($request->file('image'), 'categories');
-        }
-        Category::create($data);
+        $this->categoryService->create($request->validated());
+
         return redirect()->route('admin.categories.index')->with('success', 'Thêm danh mục thành công!');
     }
 
     public function edit(Category $category)
     {
-        $parents = Category::whereNull('parent_id')->where('id', '!=', $category->id)->get();
+        $parents = $this->categoryService->rootCategories($category->id);
+
         return view('Category::Admin.edit', compact('category', 'parents'));
     }
 
-    public function update(Request $request, Category $category)
+    public function update(CategoryRequest $request, Category $category)
     {
-        $data = $request->validate([
-            'name'      => 'required|max:255',
-            'parent_id' => 'nullable|exists:categories,id',
-            'image'     => 'nullable|image|max:2048',
-            'active'    => 'nullable|boolean',
-        ]);
-        $data['slug']   = Str::slug($data['name']);
-        $data['active'] = $request->boolean('active');
-        if ($request->hasFile('image')) {
-            $data['image'] = cdn_upload($request->file('image'), 'categories');
-        }
-        $category->update($data);
+        $this->categoryService->update($category, $request->validated());
+
         return redirect()->route('admin.categories.index')->with('success', 'Cập nhật danh mục thành công!');
     }
 
     public function destroy(Category $category)
     {
-        $category->delete();
+        $this->categoryService->delete($category);
+
         return back()->with('success', 'Xóa danh mục thành công!');
     }
 }

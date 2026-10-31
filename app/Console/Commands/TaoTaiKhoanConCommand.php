@@ -2,7 +2,7 @@
 
 namespace App\Console\Commands;
 
-use App\Models\Role;
+use App\Modules\Permission\Models\Role;
 use App\Models\User;
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;

@@ -2,6 +2,7 @@
 
 namespace App\Modules\Shared\Repositories;
 
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
@@ -44,5 +45,16 @@ abstract class BaseRepository
     public function delete(Model $model): void
     {
         $model->delete();
+    }
+
+    /**
+     * Danh sách có ô tìm kiếm + phân trang. $column do code truyền vào, không lấy từ request.
+     */
+    protected function paginateWithSearch(Builder $query, ?string $search, string $column, int $perPage = 20): LengthAwarePaginator
+    {
+        return $query
+            ->when($search, fn ($q) => $q->where($column, 'like', "%$search%"))
+            ->paginate($perPage)
+            ->withQueryString();
     }
 }

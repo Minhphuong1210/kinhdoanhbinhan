@@ -1,6 +1,7 @@
 <?php
-namespace App\Models;
+namespace App\Modules\Category\Models;
 
+use App\Models\Product;
 use Illuminate\Database\Eloquent\Model;
 
 class Category extends Model

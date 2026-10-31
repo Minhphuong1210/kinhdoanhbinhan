@@ -1,6 +1,7 @@
 <?php
 namespace App\Models;
 
+use App\Modules\Category\Models\Category;
 use App\Modules\Tag\Models\Tag;
 use Illuminate\Database\Eloquent\Model;
 

@@ -1,5 +1,5 @@
 <?php
-namespace App\Models;
+namespace App\Modules\ChinhSach\Models;
 
 use Illuminate\Database\Eloquent\Model;
 

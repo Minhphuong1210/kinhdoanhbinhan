@@ -1,6 +1,7 @@
 <?php
-namespace App\Models;
+namespace App\Modules\CategoryPost\Models;
 
+use App\Models\Post;
 use Illuminate\Database\Eloquent\Model;
 
 class CategoryPost extends Model

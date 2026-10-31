@@ -3,14 +3,14 @@
 namespace App\Modules\CategoryPost\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\CategoryPost;
+use App\Modules\CategoryPost\Models\CategoryPost;
+use App\Modules\CategoryPost\Requests\CategoryPostRequest;
+use App\Modules\CategoryPost\Services\CategoryPostService;
 use Illuminate\Http\Request;
-use Illuminate\Support\Str;
 
 class CategoryPostController extends Controller
 {
-
- public function __construct()
+    public function __construct(private readonly CategoryPostService $categoryPostService)
     {
         $this->middleware('permission:product.view')->only(['index']);
         $this->middleware('permission:product.create')->only(['create', 'store']);
@@ -20,11 +20,8 @@ class CategoryPostController extends Controller
 
     public function index(Request $request)
     {
-        $query = CategoryPost::withCount('posts');
-        if ($search = $request->search) {
-            $query->where('name', 'like', "%$search%");
-        }
-        $categories = $query->latest()->paginate(20)->withQueryString();
+        $categories = $this->categoryPostService->list($request->search);
+
         return view('CategoryPost::Admin.index', compact('categories'));
     }
 
@@ -33,12 +30,10 @@ class CategoryPostController extends Controller
         return view('CategoryPost::Admin.create');
     }
 
-    public function store(Request $request)
+    public function store(CategoryPostRequest $request)
     {
-        $data = $request->validate(['name' => 'required|max:255', 'active' => 'nullable|boolean']);
-        $data['slug']   = Str::slug($data['name']);
-        $data['active'] = $request->boolean('active');
-        CategoryPost::create($data);
+        $this->categoryPostService->create($request->validated());
+
         return redirect()->route('admin.category-posts.index')->with('success', 'Thêm thành công!');
     }
 
@@ -47,18 +42,17 @@ class CategoryPostController extends Controller
         return view('CategoryPost::Admin.edit', compact('categoryPost'));
     }
 
-    public function update(Request $request, CategoryPost $categoryPost)
+    public function update(CategoryPostRequest $request, CategoryPost $categoryPost)
     {
-        $data = $request->validate(['name' => 'required|max:255', 'active' => 'nullable|boolean']);
-        $data['slug']   = Str::slug($data['name']);
-        $data['active'] = $request->boolean('active');
-        $categoryPost->update($data);
+        $this->categoryPostService->update($categoryPost, $request->validated());
+
         return redirect()->route('admin.category-posts.index')->with('success', 'Cập nhật thành công!');
     }
 
     public function destroy(CategoryPost $categoryPost)
     {
-        $categoryPost->delete();
+        $this->categoryPostService->delete($categoryPost);
+
         return back()->with('success', 'Xóa thành công!');
     }
 }

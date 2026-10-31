@@ -1,10 +1,10 @@
 <?php
 namespace App\Modules\Product\Services;
 
-use App\Models\Category;
-use App\Models\CategoryPost;
+use App\Modules\Category\Models\Category;
+use App\Modules\CategoryPost\Models\CategoryPost;
 use App\Models\CoCheHoanPhi;
-use App\Models\GioiThieu;
+use App\Modules\GioiThieu\Models\GioiThieu;
 use App\Models\Post;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;

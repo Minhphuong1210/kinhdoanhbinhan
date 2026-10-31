@@ -2,8 +2,8 @@
 
 namespace App\Modules\Core\ViewComposers;
 
-use App\Models\Category;
-use App\Models\ChinhSach;
+use App\Modules\Category\Models\Category;
+use App\Modules\ChinhSach\Models\ChinhSach;
 use App\Models\Setting;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\View\View;

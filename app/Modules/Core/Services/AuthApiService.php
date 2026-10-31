@@ -2,7 +2,7 @@
 namespace App\Modules\Core\Services;
 
 use App\Models\NganHangBank;
-use App\Models\Role;
+use App\Modules\Permission\Models\Role;
 use App\Models\TongNganHang;
 use App\Models\User;
 use App\Services\FcmTokenService;

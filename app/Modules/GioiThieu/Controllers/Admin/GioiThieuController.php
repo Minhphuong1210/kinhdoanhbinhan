@@ -3,14 +3,21 @@
 namespace App\Modules\GioiThieu\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Models\GioiThieu;
+use App\Modules\GioiThieu\Models\GioiThieu;
+use App\Modules\GioiThieu\Requests\GioiThieuRequest;
+use App\Modules\GioiThieu\Services\GioiThieuService;
 use Illuminate\Http\Request;
 
 class GioiThieuController extends Controller
 {
+    public function __construct(private readonly GioiThieuService $gioiThieuService)
+    {
+    }
+
     public function index(Request $request)
     {
-        $items = GioiThieu::latest()->paginate(20)->withQueryString();
+        $items = $this->gioiThieuService->list();
+
         return view('GioiThieu::Admin.index', compact('items'));
     }
 
@@ -19,27 +26,10 @@ class GioiThieuController extends Controller
         return view('GioiThieu::Admin.create');
     }
 
-    public function store(Request $request)
+    public function store(GioiThieuRequest $request)
     {
-        $data = $request->validate([
-            'name'        => 'required|max:255',
-            'image'       => 'nullable|image|max:2048',
-            'content'     => 'nullable|string',
-            'vi_tri_text' => 'nullable|max:100',
-            'vi_tri'      => 'nullable|max:100',
-            'year'        => 'nullable|integer',
-            'vi_tri_web'  => 'nullable|max:100',
-            'nam_kinh_doanh' => 'nullable|max:50',
-            'khach_hang'     => 'nullable|max:50',
-            'san_pham'       => 'nullable|max:50',
-        ]);
-        // Ưu tiên vi_tri_text (dropdown có nghĩa) hơn vi_tri (text cũ)
-        $data['vi_tri'] = $request->filled('vi_tri_text') ? $request->vi_tri_text : $request->vi_tri;
-        unset($data['vi_tri_text']);
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('gioi-thieu', 'shared');
-        }
-        GioiThieu::create($data);
+        $this->gioiThieuService->create($request->validated());
+
         return redirect()->route('admin.gioi-thieus.index')->with('success', 'Thêm thành công!');
     }
 
@@ -48,32 +38,17 @@ class GioiThieuController extends Controller
         return view('GioiThieu::Admin.edit', compact('gioiThieu'));
     }
 
-    public function update(Request $request, GioiThieu $gioiThieu)
+    public function update(GioiThieuRequest $request, GioiThieu $gioiThieu)
     {
-        $data = $request->validate([
-            'name'        => 'required|max:255',
-            'image'       => 'nullable|image|max:2048',
-            'content'     => 'nullable|string',
-            'vi_tri_text' => 'nullable|max:100',
-            'vi_tri'      => 'nullable|max:100',
-            'year'        => 'nullable|integer',
-            'vi_tri_web'  => 'nullable|max:100',
-            'nam_kinh_doanh' => 'nullable|max:50',
-            'khach_hang'     => 'nullable|max:50',
-            'san_pham'       => 'nullable|max:50',
-        ]);
-        $data['vi_tri'] = $request->filled('vi_tri_text') ? $request->vi_tri_text : $request->vi_tri;
-        unset($data['vi_tri_text']);
-        if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('gioi-thieu', 'shared');
-        }
-        $gioiThieu->update($data);
+        $this->gioiThieuService->update($gioiThieu, $request->validated());
+
         return redirect()->route('admin.gioi-thieus.index')->with('success', 'Cập nhật thành công!');
     }
 
     public function destroy(GioiThieu $gioiThieu)
     {
-        $gioiThieu->delete();
+        $this->gioiThieuService->delete($gioiThieu);
+
         return back()->with('success', 'Xóa thành công!');
     }
 }

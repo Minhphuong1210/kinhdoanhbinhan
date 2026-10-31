@@ -2,7 +2,7 @@
 
 namespace App\Providers;
 
-use App\Models\CategoryPost;
+use App\Modules\CategoryPost\Models\CategoryPost;
 use Illuminate\Support\Facades\View;
 use Illuminate\Support\ServiceProvider;
 

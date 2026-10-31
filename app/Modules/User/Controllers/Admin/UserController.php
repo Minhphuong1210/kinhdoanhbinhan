@@ -5,7 +5,7 @@ namespace App\Modules\User\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Districts;
 use App\Models\Provinces;
-use App\Models\Role;
+use App\Modules\Permission\Models\Role;
 use App\Models\User;
 use App\Models\Wards;
 use App\Exports\MembersExport;

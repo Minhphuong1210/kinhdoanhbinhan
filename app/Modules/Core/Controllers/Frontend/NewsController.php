@@ -3,7 +3,7 @@
 namespace App\Modules\Core\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
-use App\Models\CategoryPost;
+use App\Modules\CategoryPost\Models\CategoryPost;
 use App\Models\Post;
 use Illuminate\Http\Request;
 
