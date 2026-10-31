@@ -5,6 +5,7 @@ namespace App\Modules\Notifycation\Services;
 use App\Models\Notification;
 use App\Models\NotificationReads;
 use App\Models\User;
+use App\Modules\Notifycation\Repositories\NotificationRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Database\Eloquent\Builder;
 
@@ -16,9 +17,13 @@ class NotificationApiService
 {
     public const PER_PAGE = 20;
 
+    public function __construct(private readonly NotificationRepository $notifications)
+    {
+    }
+
     public function list(User $user, array $filters): LengthAwarePaginator
     {
-        return $this->visibleQuery($user)
+        return $this->notifications->visibleWithReads($user)
             ->when(($filters['read'] ?? null) !== null && $filters['read'] !== '', function (Builder $q) use ($user, $filters) {
                 $isRead = filter_var($filters['read'], FILTER_VALIDATE_BOOLEAN);
                 $isRead
@@ -33,11 +38,7 @@ class NotificationApiService
 
     public function unreadCount(User $user): int
     {
-        return Notification::query()
-            ->visibleTo($user)
-            ->forCurrentSite()
-            ->whereDoesntHave('reads', fn ($q) => $q->where('user_id', $user->id))
-            ->count();
+        return $this->notifications->countUnread($user);
     }
 
     /**
@@ -45,7 +46,7 @@ class NotificationApiService
      */
     public function detail(User $user, int $notificationId): ?Notification
     {
-        $notification = $this->visibleQuery($user)->find($notificationId);
+        $notification = $this->notifications->visibleWithReads($user)->find($notificationId);
 
         if (!$notification) {
             return null;
@@ -61,10 +62,7 @@ class NotificationApiService
 
     public function markAsRead(User $user, Notification $notification): NotificationReads
     {
-        $read = NotificationReads::query()->firstOrCreate(
-            ['notification_id' => $notification->id, 'user_id' => $user->id],
-            ['read_at' => now()]
-        );
+        $read = $this->notifications->findOrCreateRead($notification, $user);
 
         if (empty($read->read_at)) {
             $read->read_at = now();
@@ -72,13 +70,5 @@ class NotificationApiService
         }
 
         return $read;
-    }
-
-    private function visibleQuery(User $user): Builder
-    {
-        return Notification::query()
-            ->visibleTo($user)
-            ->forCurrentSite()
-            ->with(['reads' => fn ($q) => $q->where('user_id', $user->id)]);
     }
 }

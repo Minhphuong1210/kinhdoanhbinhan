@@ -5,6 +5,7 @@ namespace App\Modules\Notifycation\Services;
 use App\Models\FcmUser;
 use App\Models\Notification;
 use App\Modules\Notifycation\Jobs\SendBroadcastPushJob;
+use App\Modules\Notifycation\Repositories\NotificationRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Http\UploadedFile;
 
@@ -19,24 +20,18 @@ class BroadcastNotificationService
         Notification::VI_TRI_TAT_CA   => 'Cả 2 app',
     ];
 
+    public function __construct(private readonly NotificationRepository $notifications)
+    {
+    }
+
     public function list(array $filters): LengthAwarePaginator
     {
-        return Notification::broadcast()
-            ->when($filters['vi_tri'] ?? null, fn ($q, $viTri) => $q->where('vi_tri', $viTri))
-            ->when($filters['search'] ?? null, function ($q, $search) {
-                $q->where(function ($inner) use ($search) {
-                    $inner->where('title', 'like', "%{$search}%")->orWhere('content', 'like', "%{$search}%");
-                });
-            })
-            ->withCount('reads')
-            ->latest()
-            ->paginate(20)
-            ->withQueryString();
+        return $this->notifications->paginateBroadcasts($filters);
     }
 
     public function send(string $title, string $content, string $viTri, ?UploadedFile $image = null): Notification
     {
-        $notification = Notification::create([
+        $notification = $this->notifications->create([
             'target_type' => Notification::TARGET_ALL,
             'target_id'   => 0,
             'title'       => $title,
@@ -91,8 +86,7 @@ class BroadcastNotificationService
 
     public function delete(Notification $notification): void
     {
-        $notification->reads()->delete();
-        $notification->delete();
+        $this->notifications->deleteWithReads($notification);
     }
 
     /**

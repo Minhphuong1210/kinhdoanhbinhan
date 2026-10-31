@@ -4,7 +4,7 @@ namespace App\Console\Commands;
 
 use Illuminate\Console\Command;
 use GuzzleHttp\Client;
-use App\Models\ShippingCarrier;
+use App\Modules\Shipping\Models\ShippingCarrier;
 use App\Models\PancakeDistricts;
 use App\Models\PancakeCommunes;
 

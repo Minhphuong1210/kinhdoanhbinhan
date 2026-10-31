@@ -2,7 +2,7 @@
 namespace App\Modules\Shipping\Services;
 
 use App\Models\Order;
-use App\Models\ShippingCarrier;
+use App\Modules\Shipping\Repositories\ShippingCarrierRepository;
 use GuzzleHttp\Client;
 use Illuminate\Support\Facades\Log;
 
@@ -11,13 +11,14 @@ class PancakeService
     protected $apiUrl = 'https://pos.pages.fm/api/v1';
     protected $carrier;
 
-    public function __construct()
+    public function __construct(private readonly ShippingCarrierRepository $carriers)
     {
-        $this->carrier = ShippingCarrier::where('alias', 'pancake')->where('is_active', 1)->first();
     }
 
     public function pushOrder(Order $order)
     {
+        $this->carrier = $this->carriers->activePancake();
+
         if (! $this->carrier) {
             Log::warning("Pancake carrier not configured.");
             return false;

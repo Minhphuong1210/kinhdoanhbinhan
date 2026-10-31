@@ -4,7 +4,7 @@ namespace App\Modules\Core\Controllers\Frontend;
 
 use App\Http\Controllers\Controller;
 use App\Modules\CategoryPost\Models\CategoryPost;
-use App\Models\Post;
+use App\Modules\Post\Models\Post;
 use Illuminate\Http\Request;
 
 class NewsController extends Controller

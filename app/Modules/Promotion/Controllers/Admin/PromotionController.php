@@ -4,22 +4,28 @@ namespace App\Modules\Promotion\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Gift;
-use App\Models\Product;
 use App\Models\ProductPromotion;
 use App\Models\Promotion;
+use App\Modules\Product\Repositories\ProductRepository;
+use App\Modules\Promotion\Requests\GiftRequest;
+use App\Modules\Promotion\Requests\PromotionRequest;
+use App\Modules\Promotion\Services\PromotionService;
 use Illuminate\Http\Request;
 
 class PromotionController extends Controller
 {
+    public function __construct(
+        private readonly PromotionService $promotionService,
+        private readonly ProductRepository $productRepository
+    ) {
+    }
+
     /**
      * Danh sách sự kiện khuyến mãi
      */
     public function index()
     {
-        $promotions = Promotion::withCount('productPromotions')
-            ->orderByDesc('year')
-            ->orderByDesc('month')
-            ->paginate(15);
+        $promotions = $this->promotionService->list();
 
         return view('Promotion::Admin.index', compact('promotions'));
     }
@@ -29,22 +35,17 @@ class PromotionController extends Controller
      */
     public function create()
     {
-        $products = Product::where('active', 1)->orderBy('name')->get();
+        $products = $this->productRepository->activeOrderedByName();
+
         return view('Promotion::Admin.create', compact('products'));
     }
 
     /**
      * Lưu sự kiện mới
      */
-    public function store(Request $request)
+    public function store(PromotionRequest $request)
     {
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'month' => 'required|integer|min:1|max:12',
-            'year'  => 'required|integer|min:2020|max:2099',
-        ]);
-
-        $promotion = Promotion::create($request->only('name', 'month', 'year', 'description', 'is_active'));
+        $promotion = $this->promotionService->create($request->validated());
 
         return redirect()->route('admin.promotions.edit', $promotion->id)
             ->with('success', 'Tạo sự kiện thành công! Bây giờ hãy thêm sản phẩm và quà tặng.');
@@ -55,8 +56,8 @@ class PromotionController extends Controller
      */
     public function edit(Promotion $promotion)
     {
-        $promotion->load('productPromotions.product', 'productPromotions.gifts.giftProduct');
-        $products = Product::where('active', 1)->orderBy('name')->get();
+        $promotion = $this->promotionService->loadForEdit($promotion);
+        $products = $this->productRepository->activeOrderedByName();
 
         return view('Promotion::Admin.edit', compact('promotion', 'products'));
     }
@@ -64,21 +65,9 @@ class PromotionController extends Controller
     /**
      * Cập nhật thông tin sự kiện
      */
-    public function update(Request $request, Promotion $promotion)
+    public function update(PromotionRequest $request, Promotion $promotion)
     {
-        $request->validate([
-            'name'  => 'required|string|max:255',
-            'month' => 'required|integer|min:1|max:12',
-            'year'  => 'required|integer|min:2020|max:2099',
-        ]);
-
-        $promotion->update([
-            'name'        => $request->name,
-            'month'       => $request->month,
-            'year'        => $request->year,
-            'description' => $request->description,
-            'is_active'   => $request->has('is_active') ? 1 : 0,
-        ]);
+        $this->promotionService->update($promotion, $request->validated());
 
         return back()->with('success', 'Cập nhật sự kiện thành công!');
     }
@@ -88,7 +77,8 @@ class PromotionController extends Controller
      */
     public function destroy(Promotion $promotion)
     {
-        $promotion->delete();
+        $this->promotionService->delete($promotion);
+
         return redirect()->route('admin.promotions.index')->with('success', 'Đã xoá sự kiện.');
     }
 
@@ -105,19 +95,9 @@ class PromotionController extends Controller
             'product_id' => 'required|exists:products,id',
         ]);
 
-        // Kiểm tra trùng
-        $exists = ProductPromotion::where('promotion_id', $promotion->id)
-            ->where('product_id', $request->product_id)
-            ->exists();
-
-        if ($exists) {
+        if (!$this->promotionService->addProduct($promotion, $request->product_id)) {
             return back()->with('error', 'Sản phẩm này đã có trong sự kiện.');
         }
-
-        ProductPromotion::create([
-            'promotion_id' => $promotion->id,
-            'product_id'   => $request->product_id,
-        ]);
 
         return back()->with('success', 'Đã thêm sản phẩm vào sự kiện.');
     }
@@ -128,6 +108,7 @@ class PromotionController extends Controller
     public function removeProduct(Promotion $promotion, ProductPromotion $productPromotion)
     {
         $productPromotion->delete();
+
         return back()->with('success', 'Đã xoá sản phẩm khỏi sự kiện.');
     }
 
@@ -138,32 +119,9 @@ class PromotionController extends Controller
     /**
      * Thêm quà tặng cho product_promotion
      */
-    public function addGift(Request $request, ProductPromotion $productPromotion)
+    public function addGift(GiftRequest $request, ProductPromotion $productPromotion)
     {
-        $request->validate([
-            'type' => 'required|in:product,discount_percent,discount_amount',
-        ]);
-
-        $data = [
-            'product_promotion_id' => $productPromotion->id,
-            'type'                 => $request->type,
-        ];
-
-        if ($request->type === 'product') {
-            $request->validate([
-                'gift_product_id' => 'required|exists:products,id',
-                'quantity'        => 'required|integer|min:1',
-            ]);
-            $data['gift_product_id'] = $request->gift_product_id;
-            $data['quantity']        = $request->quantity;
-        } else {
-            $request->validate([
-                'discount_value' => 'required|numeric|min:0.01',
-            ]);
-            $data['discount_value'] = $request->discount_value;
-        }
-
-        Gift::create($data);
+        $this->promotionService->addGift($productPromotion, $request->validated());
 
         return back()->with('success', 'Đã thêm khuyến mãi.');
     }
@@ -174,6 +132,7 @@ class PromotionController extends Controller
     public function removeGift(Gift $gift)
     {
         $gift->delete();
+
         return back()->with('success', 'Đã xoá khuyến mãi.');
     }
 }

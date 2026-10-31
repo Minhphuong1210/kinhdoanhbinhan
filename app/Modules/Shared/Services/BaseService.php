@@ -3,6 +3,7 @@
 namespace App\Modules\Shared\Services;
 
 use App\Modules\Shared\Repositories\BaseRepository;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Http\UploadedFile;
 
@@ -16,6 +17,11 @@ abstract class BaseService
 
     public function __construct(protected BaseRepository $repository)
     {
+    }
+
+    public function all(): Collection
+    {
+        return $this->repository->all();
     }
 
     public function create(array $data): Model
@@ -53,6 +59,22 @@ abstract class BaseService
     protected function storeImage(UploadedFile $file): string
     {
         return cdn_upload($file, $this->uploadFolder);
+    }
+
+    /** Xoá các ảnh trên CDN được chèn trong nội dung CKEditor */
+    protected function deleteEditorImages(?string $html): void
+    {
+        if (empty($html)) {
+            return;
+        }
+
+        preg_match_all('/<img[^>]+src=["\']([^"\']+)["\']/i', $html, $matches);
+
+        foreach ($matches[1] as $url) {
+            if (filter_var($url, FILTER_VALIDATE_URL)) {
+                cdn_delete($url);
+            }
+        }
     }
 
     /** Checkbox: thiếu hoặc rỗng là false */

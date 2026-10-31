@@ -37,7 +37,7 @@ Route::prefix('api')->middleware('api')->group(function () {
     });
 });
 
-Route::get('/number_invite', function () {
+Route::middleware(['web', 'auth', 'admin', 'permission:setting.edit'])->get('/number_invite', function () {
 
     User::chunkById(500, function ($users) {
 
@@ -62,7 +62,7 @@ Route::get('/number_invite', function () {
  *
  * */
 
-Route::get('/delivery_fee', function () {
+Route::middleware(['web', 'auth', 'admin', 'permission:setting.edit'])->get('/delivery_fee', function () {
     $orders = App\Models\Order::all();
     foreach ($orders as $order) {
         $shipping_price   = ($order->total_price_hoan_tien * 8) / 100;
@@ -70,7 +70,7 @@ Route::get('/delivery_fee', function () {
         $order->save();
     }
 });
-Route::get('update_tien', function () {
+Route::middleware(['web', 'auth', 'admin', 'permission:setting.edit'])->get('update_tien', function () {
     $yeuCauRutTiens = App\Models\YeuCauRutTien::all();
 
     foreach ($yeuCauRutTiens as $yeuCauRutTien) {

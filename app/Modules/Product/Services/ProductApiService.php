@@ -5,7 +5,7 @@ use App\Modules\Category\Models\Category;
 use App\Modules\CategoryPost\Models\CategoryPost;
 use App\Models\CoCheHoanPhi;
 use App\Modules\GioiThieu\Models\GioiThieu;
-use App\Models\Post;
+use App\Modules\Post\Models\Post;
 use App\Models\Product;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 

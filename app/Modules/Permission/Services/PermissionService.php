@@ -17,9 +17,4 @@ class PermissionService extends BaseService
     {
         return $this->repository->paginateForAdmin();
     }
-
-    public function all()
-    {
-        return $this->repository->all();
-    }
 }

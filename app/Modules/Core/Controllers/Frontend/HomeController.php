@@ -8,7 +8,7 @@ use App\Modules\CategoryPost\Models\CategoryPost;
 use App\Modules\GioiThieu\Models\GioiThieu;
 use App\Modules\Leader\Models\Leader;
 use App\Models\Order;
-use App\Models\Post;
+use App\Modules\Post\Models\Post;
 use App\Models\Product;
 use App\Models\Setting;
 use App\Modules\Widget\Models\Widget;
