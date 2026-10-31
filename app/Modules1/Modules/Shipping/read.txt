@@ -1,0 +1,67 @@
+Để thêm được đơn hàng lên trên pancake thì cần làm những điều sau :
+
+Thêm dữ liệu thông số, vào bảng shipping
+chạy route này /test-pancake-shops đề lấy được thông tin shop
+chạy route test-pancake-warehouses để lấy kho hiện tại
+chạy route này để lấy sản phẩm test-pancake-products, nếu mà chưa có thì sẽ add lên và nó trả ra uiu
+sau khi xong thì sẽ gửi các thông tin này lên
+
+         $payload = [
+
+             'bill_full_name' => $order->receive_user,
+             'bill_phone_number' => $order->receive_phone,
+
+             'is_free_shipping' => false,
+             'received_at_shop' => false,
+
+             'shipping_fee' => 0,
+             'cash' => 0,
+             'status' => 0,
+             'merge_order' => false,
+             'total_discount' => 0,
+
+             'warehouse_id' => 'c1f17d0c-c179-489d-8a69-f21f6ea8ed60', // thông tin kho
+
+             'shipping_address' => [
+                 'address' => $order->receive_address,
+                 'full_address' => $order->receive_address,
+
+                 'full_name' => $order->receive_user,
+                 'phone_number' => $order->receive_phone,
+
+                 // PHẢI LÀ STRING
+                 'province_id' => '101', // phải tạo ra 1 bảng để map với bên pancake
+                 'district_id' => '10101',
+                 'commune_id' => '1010115',
+             ],
+
+             'items' => [
+                 [
+                     'discount_each_product' => 0,
+                     'is_bonus_product' => false,
+                     'is_discount_percent' => false,
+                     'is_wholesale' => false,
+                     'one_time_product' => false,
+
+                     'quantity' => 1,
+
+                     'product_id' => '109b687c-acfb-4a58-ba5f-23d94c73216f', // đây là id sản phẩm
+
+                     'variation_id' => '46423ed7-d1c7-45da-9d65-7786e3a4960c', // đây là id của biến thể sản phẩm
+
+                     'variation_info' => [
+                         'detail' => null,
+                         'fields' => [],
+                         'display_id' => '1',
+                         'name' => 'combo1',
+                         'product_display_id' => '1',
+                         'retail_price' => 100000,
+                         'weight' => 100
+                     ]
+                 ]
+             ],
+
+             'note' => '',
+
+             'shop_id' => 715007292,
+         ];

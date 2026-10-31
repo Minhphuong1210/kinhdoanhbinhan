@@ -1,0 +1,8 @@
+<?php
+
+use App\Modules\Widget\Controllers\Admin\WidgetController;
+use Illuminate\Support\Facades\Route;
+
+Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'web', 'permission:content.manage'])->group(function () {
+    Route::resource('widgets', WidgetController::class)->except(['show']);
+});

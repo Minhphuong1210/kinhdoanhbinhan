@@ -1,0 +1,14 @@
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+
+    # Nếu request đã trỏ vào public thì không rewrite lại
+    RewriteCond %{REQUEST_URI} !^/public/
+
+    # Nếu file/thư mục tồn tại ở public thì lấy trực tiếp
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -f [OR]
+    RewriteCond %{DOCUMENT_ROOT}/public/$1 -d
+    RewriteRule ^(.*)$ public/$1 [L]
+
+    # Tất cả request còn lại chạy qua public/index.php
+    RewriteRule ^(.*)$ public/index.php [L]
+</IfModule>
