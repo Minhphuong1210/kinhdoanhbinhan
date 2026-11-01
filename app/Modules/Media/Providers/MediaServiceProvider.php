@@ -2,7 +2,7 @@
 
 namespace App\Modules\Media\Providers;
 
-use App\Modules\Media\Console\MigrateImagesToR2Command;
+use App\Modules\Media\Console\ClearMissingImagesCommand;
 use Illuminate\Support\ServiceProvider;
 
 /**
@@ -17,15 +17,7 @@ class MediaServiceProvider extends ServiceProvider
 
         $this->mergeConfigFrom(__DIR__ . '/../Config/media.php', 'media');
 
-        $local = [
-            'driver'     => 'local',
-            'root'       => config('media.local.root'),
-            'url'        => config('media.local.url'),
-            'visibility' => 'public',
-            'throw'      => false,
-        ];
-
-        $r2 = [
+        config(['filesystems.disks.media' => [
             'driver'                  => 's3',
             'key'                     => config('media.r2.key'),
             'secret'                  => config('media.r2.secret'),
@@ -35,12 +27,7 @@ class MediaServiceProvider extends ServiceProvider
             'url'                     => config('media.r2.public_url'),
             'use_path_style_endpoint' => false,
             'throw'                   => false,
-        ];
-
-        config([
-            'filesystems.disks.media'        => config('media.driver') === 'r2' ? $r2 : $local,
-            'filesystems.disks.media_legacy' => $local,
-        ]);
+        ]]);
     }
 
     public function boot(): void
@@ -48,7 +35,7 @@ class MediaServiceProvider extends ServiceProvider
         $this->loadRoutesFrom(__DIR__ . '/../Routes/api.php');
 
         if ($this->app->runningInConsole()) {
-            $this->commands([MigrateImagesToR2Command::class]);
+            $this->commands([ClearMissingImagesCommand::class]);
         }
     }
 }

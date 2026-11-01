@@ -40,7 +40,15 @@ class MediaRepository
 
     public function url(string $path): string
     {
-        return $this->disk()->url($path);
+        $base = rtrim((string) config('media.r2.public_url'), '/');
+
+        return $base === '' ? '' : $base . '/' . ltrim($path, '/');
+    }
+
+    /** @return string[] */
+    public function allFiles(): array
+    {
+        return $this->disk()->allFiles();
     }
 
     private function disk(): Filesystem

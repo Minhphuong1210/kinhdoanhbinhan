@@ -1,6 +1,6 @@
 # Module Media
 
-Thêm ảnh và lấy link ảnh, lưu ở thư mục local hoặc Cloudflare R2.
+Thêm ảnh và lấy link ảnh, lưu trên Cloudflare R2.
 
 ## Cấu trúc
 
@@ -12,8 +12,8 @@ Media/
 ├── Requests/                 validate
 ├── Resources/                định dạng dữ liệu trả về
 ├── Services/MediaService.php nghiệp vụ
-├── Repositories/             làm việc với kho lưu trữ
-├── Console/                  lệnh chép ảnh sang R2
+├── Repositories/             làm việc với R2
+├── Console/                  lệnh dọn ảnh không còn trên R2
 ├── Routes/api.php
 └── helpers.php               cdn(), cdn_upload(), cdn_delete(), cdn_base64()
 ```
@@ -35,10 +35,7 @@ Yêu cầu PHP có extension `fileinfo`. API dùng `auth:sanctum`, dự án khá
 ## Biến môi trường
 
 ```env
-MEDIA_DRIVER=r2
 MEDIA_MAX_KB=5120
-MEDIA_LOCAL_ROOT=
-MEDIA_LOCAL_URL=
 
 R2_ACCESS_KEY_ID=
 R2_SECRET_ACCESS_KEY=
@@ -46,8 +43,6 @@ R2_BUCKET=
 R2_ENDPOINT=https://<account-id>.r2.cloudflarestorage.com
 R2_PUBLIC_URL=https://<domain-anh>
 ```
-
-`MEDIA_LOCAL_ROOT`, `MEDIA_LOCAL_URL` là nơi lưu ảnh khi `MEDIA_DRIVER=local`, đồng thời là nguồn khi chép ảnh sang R2.
 
 ## API
 
@@ -66,11 +61,11 @@ $url  = cdn($path);                                      // link hiển thị
 cdn_delete($path);                                       // xoá
 ```
 
-## Chuyển ảnh cũ sang R2
+## Dọn ảnh không còn trên R2
 
 ```bash
-php artisan images:migrate-r2 --dry-run
-php artisan images:migrate-r2 --rewrite-content
+php artisan images:clear-missing          # chỉ thống kê
+php artisan images:clear-missing --force  # ghi vào DB, nhớ sao lưu DB trước
 ```
 
-`--rewrite-content` đổi link ảnh cũ trong nội dung HTML. Danh sách bảng nằm ở `CONTENT_COLUMNS` trong command, dự án khác cần sửa cho đúng.
+Ảnh không còn trên R2 được đổi thành không có ảnh. Trong nội dung HTML, ảnh trỏ tới link cũ được đổi sang link R2 nếu còn file, không thì bỏ thẻ `img`. Lệnh tự dừng nếu bucket trống. Danh sách bảng và cột nằm ở `cleanup` trong `Config/media.php`.
