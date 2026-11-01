@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Console\Commands;
+namespace App\Modules\Media\Console;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\DB;
@@ -32,8 +32,8 @@ class MigrateImagesToR2Command extends Command
 
     public function handle(): int
     {
-        if (config('filesystems.disks.shared.driver') !== 's3') {
-            $this->error('Chưa bật R2: đặt SHARED_DISK=r2 và điền các biến R2_* trong .env.');
+        if (config('media.driver') !== 'r2') {
+            $this->error('Chưa bật R2: đặt MEDIA_DRIVER=r2 và điền các biến R2_* trong .env.');
 
             return self::FAILURE;
         }
@@ -49,8 +49,8 @@ class MigrateImagesToR2Command extends Command
 
     private function copyFiles(): void
     {
-        $source = Storage::disk('shared_local');
-        $target = Storage::disk('shared');
+        $source = Storage::disk('media_legacy');
+        $target = Storage::disk('media');
         $files = $source->allFiles();
         $copied = 0;
         $skipped = 0;
@@ -88,8 +88,8 @@ class MigrateImagesToR2Command extends Command
 
     private function rewriteContent(): void
     {
-        $oldUrl = rtrim((string) config('filesystems.disks.shared_local.url'), '/') . '/';
-        $newUrl = rtrim((string) config('filesystems.disks.shared.url'), '/') . '/';
+        $oldUrl = rtrim((string) config('filesystems.disks.media_legacy.url'), '/') . '/';
+        $newUrl = rtrim((string) config('filesystems.disks.media.url'), '/') . '/';
 
         foreach (self::CONTENT_COLUMNS as $table => $columns) {
             foreach ($columns as $column) {

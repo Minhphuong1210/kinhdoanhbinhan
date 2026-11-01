@@ -44,7 +44,7 @@ class ProfileService
         $update['chi_nhanh_ngan_hang'] = $data['ngan_hang_chi_nhanh_id'] ?? null;
 
         if (!empty($data['image'])) {
-            $update['image'] = $data['image']->store('avatars', 'shared');
+            $update['image'] = cdn_upload($data['image'], 'avatars');
         }
 
         $user->update($update + $this->credentialChanges($data));

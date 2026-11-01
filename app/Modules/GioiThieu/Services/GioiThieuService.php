@@ -22,7 +22,7 @@ class GioiThieuService extends BaseService
     /** Ảnh giới thiệu lưu ở disk shared, không qua CDN */
     protected function storeImage(UploadedFile $file): string
     {
-        return $file->store('gioi-thieu', 'shared');
+        return cdn_upload($file, 'gioi-thieu');
     }
 
     protected function prepare(array $data): array

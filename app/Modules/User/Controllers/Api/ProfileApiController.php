@@ -32,7 +32,7 @@ class ProfileApiController extends Controller
         $data = $request->validated();
 
         if ($request->hasFile('image')) {
-            $data['image'] = $request->file('image')->store('avatars', 'shared');
+            $data['image'] = cdn_upload($request->file('image'), 'avatars');
         }
 
         $user = $this->profileService->updateProfile($request->user(), $data);
