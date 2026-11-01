@@ -21,7 +21,7 @@ class User extends Authenticatable
         'ngay_tham_gia','ngay_mua_don_cuoi','so_thanh_vien_gt','fcm','chi_nhanh_ngan_hang','cccd','vi_tien_mua_hang','bank_area_id'
     ];
 
-    protected $hidden = ['password','remember_token'];
+    protected $hidden = ['password','remember_token','pin'];
 
     protected $casts = [
         'email_verified_at' => 'datetime',

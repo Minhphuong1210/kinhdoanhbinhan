@@ -2,7 +2,7 @@
 
 use App\Modules\Setting\Controllers\Admin\SettingController;
 use Illuminate\Support\Facades\Route;
-use App\Modules\Core\Controllers\Api\VideoGioiThieuApiController;
+use App\Modules\Setting\Controllers\Api\VideoGioiThieuApiController;
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'web'])->group(function () {
 //    Route::get('settings', [SettingController::class, 'index'])->name('settings.index');
 //    Route::post('settings', [SettingController::class, 'update'])->name('settings.update');

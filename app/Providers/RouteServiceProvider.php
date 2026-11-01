@@ -28,6 +28,26 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        // Đăng nhập: giới hạn theo tài khoản + IP và theo IP để chống dò mật khẩu
+        RateLimiter::for('login', function (Request $request) {
+            $login = (string) ($request->input('login') ?? $request->input('email'));
+
+            return [
+                Limit::perMinute(5)->by(mb_strtolower($login) . '|' . $request->ip()),
+                Limit::perMinute(30)->by($request->ip()),
+            ];
+        });
+
+        // Đăng ký, quên mật khẩu, quên PIN
+        RateLimiter::for('sensitive', function (Request $request) {
+            return Limit::perMinute(5)->by($request->ip());
+        });
+
+        // Chống dò PIN theo tài khoản
+        RateLimiter::for('pin', function (Request $request) {
+            return Limit::perMinute(5)->by($request->user()?->id ?: $request->ip());
+        });
+
         $this->routes(function () {
             Route::middleware('api')
                 ->prefix('api')

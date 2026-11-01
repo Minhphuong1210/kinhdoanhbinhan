@@ -1,8 +1,9 @@
 <?php
 
-namespace App\Services;
+namespace App\Modules\User\Services;
 
 use App\Models\User;
+use App\Services\OrderService;
 use Illuminate\Support\Facades\DB;
 
 class UserTreeService

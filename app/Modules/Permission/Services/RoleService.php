@@ -20,6 +20,11 @@ class RoleService extends BaseService
         return $this->repository->paginateForAdmin();
     }
 
+    public function allOrdered()
+    {
+        return $this->repository->query()->orderBy('name')->get();
+    }
+
     public function create(array $data): Model
     {
         $permissions = Arr::pull($data, 'permissions', []);

@@ -1,13 +1,17 @@
 <?php
 
-namespace App\Modules\Core\Controllers\Api;
+namespace App\Modules\Setting\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Models\Setting;
+use App\Modules\Setting\Repositories\SettingRepository;
 use Illuminate\Http\JsonResponse;
 
 class VideoGioiThieuApiController extends Controller
 {
+    public function __construct(private readonly SettingRepository $settings)
+    {
+    }
+
     /**
      * GET /api/video-gioi-thieu
      */
@@ -30,11 +34,9 @@ class VideoGioiThieuApiController extends Controller
 
     private function videoResponse(string $name, string $emptyMessage, string $successMessage): JsonResponse
     {
-        $setting = Setting::forWeb()
-            ->where('name', $name)
-            ->first();
+        $value = $this->settings->valueOf($name);
 
-        if (!$setting || !$setting->value) {
+        if (!$value) {
             return response()->json([
                 'success' => false,
                 'message' => $emptyMessage,
@@ -46,8 +48,8 @@ class VideoGioiThieuApiController extends Controller
             'success' => true,
             'message' => $successMessage,
             'data' => [
-                'name' => $setting->name,
-                'video' => cdn($setting->value),
+                'name' => $name,
+                'video' => cdn($value),
             ],
         ]);
     }

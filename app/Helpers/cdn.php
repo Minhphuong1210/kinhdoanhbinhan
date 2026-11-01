@@ -12,6 +12,18 @@ if (!function_exists('cdn')) {
 }
 
 
+if (!function_exists('asset_url')) {
+    /** Ảnh lưu đường dẫn tương đối hoặc URL đầy đủ → URL hiển thị */
+    function asset_url(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        return filter_var($path, FILTER_VALIDATE_URL) ? $path : cdn($path);
+    }
+}
+
 if (!function_exists('cdn_upload')) {
     function cdn_upload($file, $folder = '')
     {

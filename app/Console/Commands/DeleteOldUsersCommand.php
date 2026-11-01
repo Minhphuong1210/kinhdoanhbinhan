@@ -5,7 +5,7 @@ namespace App\Console\Commands;
 use Carbon\Carbon;
 use App\Models\User;
 use Illuminate\Console\Command;
-use App\Services\UserTreeService;
+use App\Modules\User\Services\UserTreeService;
 
 class DeleteOldUsersCommand extends Command
 {

@@ -15,6 +15,11 @@ class SettingRepository extends BaseRepository
         return $this->query()->forWeb()->orderBy('name')->get()->groupBy('type');
     }
 
+    public function valueOf(string $name): ?string
+    {
+        return $this->query()->forWeb()->where('name', $name)->value('value');
+    }
+
     public function updateValue(Setting $setting, ?string $value): void
     {
         $setting->update(['value' => $value]);

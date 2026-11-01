@@ -1,15 +1,15 @@
 <?php
 
-namespace App\Modules\Core\Controllers\Api;
+namespace App\Modules\User\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use App\Modules\Core\Services\MemberApiService;
+use App\Modules\User\Services\MemberService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 
 class MemberApiController extends Controller
 {
-    public function __construct(private readonly MemberApiService $memberApiService)
+    public function __construct(private readonly MemberService $memberService)
     {
     }
 
@@ -22,7 +22,7 @@ class MemberApiController extends Controller
             'search' => ['nullable', 'string', 'max:255'],
         ]);
 
-        $members = $this->memberApiService->khachHangTrucTiepChuaMua($request->user(), $request->only('search'));
+        $members = $this->memberService->unpurchasedReferrals($request->user(), $request->only('search'));
 
         return response()->json([
             'success' => true,
