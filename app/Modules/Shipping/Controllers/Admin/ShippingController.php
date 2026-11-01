@@ -21,12 +21,17 @@ class ShippingController extends Controller
 
     public function saveSettings(Request $request)
     {
+        $current = $this->carriers->pancake();
+
         $data = $request->validate([
-            'api_token' => 'required|string|max:255',
+            'api_token' => [$current?->api_token ? 'nullable' : 'required', 'string', 'max:255'],
             'shop_id'   => 'required|string|max:100',
         ]);
 
-        $this->carriers->savePancake($data['api_token'], $data['shop_id'], $request->has('is_active'));
+        // Ô token luôn hiện rỗng: để trống nghĩa là giữ token cũ
+        $token = $data['api_token'] ?? $current?->api_token;
+
+        $this->carriers->savePancake($token, $data['shop_id'], $request->has('is_active'));
 
         return back()->with('success', 'Cập nhật cấu hình Pancake thành công!');
     }

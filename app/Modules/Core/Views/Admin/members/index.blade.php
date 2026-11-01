@@ -95,13 +95,18 @@ function toggleMember(btn, userId) {
         .catch(() => { btn.textContent = '+'; btn.disabled = false; });
 }
 
+function esc(value) {
+    const div = document.createElement('div');
+    div.textContent = value ?? '';
+    return div.innerHTML.replace(/"/g, '&quot;');
+}
+
 function buildRow(m, depth) {
     const hasChildren = m.direct_count > 0;
-    const CDN = 'https://cdn.kinhdoanhbinhan.com/shared';
 
     const avatar = m.image
-        ? `<img class="member-avatar" src="${CDN}/${m.image}">`
-        : `<div class="member-avatar-char">${m.avatar_char}</div>`;
+        ? `<img class="member-avatar" src="${esc(m.image)}">`
+        : `<div class="member-avatar-char">${esc(m.avatar_char)}</div>`;
     const toggle = hasChildren
         ? `<button class="member-toggle" onclick="toggleMember(this,${m.id})">+</button>`
         : `<button class="member-toggle no-child" disabled>·</button>`;
@@ -115,14 +120,14 @@ function buildRow(m, depth) {
             ${toggle}
             ${avatar}
             <div class="member-info">
-                <div class="member-name">${m.name}</div>
-                <div class="member-email">${m.email || ''}</div>
+                <div class="member-name">${esc(m.name)}</div>
+                <div class="member-email">${esc(m.email)}</div>
             </div>
             <div class="member-meta">
-                <span style="color:#22c55e;font-weight:700">${m.vi_tien}</span>
+                <span style="color:#22c55e;font-weight:700">${esc(m.vi_tien)}</span>
                 <span class="badge-members"><i class="fas fa-users"></i> ${m.direct_count}</span>
                 ${statusBadge}
-                <span style="color:#8a9bb0">${m.joined || ''}</span>
+                <span style="color:#8a9bb0">${esc(m.joined)}</span>
             </div>
         </div>
     </div>

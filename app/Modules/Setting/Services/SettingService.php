@@ -59,6 +59,11 @@ class SettingService extends BaseService
                 continue;
             }
 
+            // Ô bí mật luôn hiện rỗng: để trống nghĩa là giữ giá trị cũ
+            if ($setting->isSecret() && ($value === null || $value === '')) {
+                continue;
+            }
+
             $this->repository->updateValue($setting, $value);
         }
 

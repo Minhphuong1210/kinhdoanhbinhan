@@ -40,6 +40,7 @@ class UserService extends BaseService
 
     public function create(array $data): Model
     {
+        $data = $this->withoutPrivilegedFields($data);
         $roles = Arr::pull($data, 'roles');
         $data['password'] = Hash::make($data['password']);
         $data['active'] = $data['active'] ?? true;
@@ -56,6 +57,8 @@ class UserService extends BaseService
 
     public function update(Model $model, array $data): Model
     {
+        $canManage = $this->canManagePrivileges();
+        $data = $this->withoutPrivilegedFields($data);
         $roles = Arr::pull($data, 'roles', []);
 
         if (!empty($data['password'])) {
@@ -65,7 +68,10 @@ class UserService extends BaseService
         }
 
         parent::update($model, $data);
-        $model->roles()->sync($roles ?? []);
+
+        if ($canManage) {
+            $model->roles()->sync($roles ?? []);
+        }
 
         return $model;
     }
@@ -75,10 +81,25 @@ class UserService extends BaseService
         $this->tree->deleteAndRebuildTree($model);
     }
 
+    /** Chỉ admin mới được đổi quyền admin, role và số dư */
+    private function canManagePrivileges(): bool
+    {
+        return (bool) auth()->user()?->is_admin;
+    }
+
+    private function withoutPrivilegedFields(array $data): array
+    {
+        return $this->canManagePrivileges() ? $data : Arr::except($data, ['is_admin', 'vi_tien', 'roles']);
+    }
+
     protected function prepare(array $data): array
     {
         $data['active'] = $this->flag($data, 'active');
-        $data['is_admin'] = $this->flag($data, 'is_admin');
+
+        if ($this->canManagePrivileges()) {
+            $data['is_admin'] = $this->flag($data, 'is_admin');
+        }
+
         unset($data['password_confirmation']);
 
         return $data;

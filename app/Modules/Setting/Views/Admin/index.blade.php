@@ -428,6 +428,17 @@
                                         {{-- =================================================
                                              TEXTAREA
                                         ================================================== --}}
+                                    @elseif($s->isSecret())
+
+                                        <input
+                                                type="password"
+                                                name="settings[{{ $s->id }}]"
+                                                class="form-control"
+                                                value=""
+                                                autocomplete="new-password"
+                                                placeholder="{{ $s->value ? 'Đã lưu. Để trống nếu không đổi' : 'Chưa có giá trị' }}"
+                                        >
+
                                     @elseif($s->type === 'textarea')
 
                                         <textarea

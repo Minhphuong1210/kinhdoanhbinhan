@@ -19,7 +19,7 @@
 
                         <div class="form-group">
                             <label for="api_token">Pancake Access Token</label>
-                            <input type="text" name="api_token" class="form-control" id="api_token" placeholder="Nhập Access Token" value="{{ $pancake->api_token ?? '' }}" required>
+                            <input type="password" name="api_token" class="form-control" id="api_token" placeholder="{{ !empty($pancake?->api_token) ? 'Đã lưu. Để trống nếu không đổi' : 'Nhập Access Token' }}" value="" autocomplete="off" @empty($pancake?->api_token) required @endempty>
                             <small class="form-text text-muted">Lấy từ thiết lập POS -> API Key trên Pancake.</small>
                         </div>
                         <div class="form-group">

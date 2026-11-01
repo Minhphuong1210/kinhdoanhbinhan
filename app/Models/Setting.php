@@ -14,6 +14,14 @@ class Setting extends Model
 
     protected $table = 'setting';
 
+    /** Setting chứa mật khẩu / key: không được trả giá trị ra trình duyệt */
+    public const SECRET_NAMES = ['password', 'mailgun_secret', 'mailgun_password', 'smtp_password', 'fpt_api_key'];
+
+    public function isSecret(): bool
+    {
+        return in_array($this->name, self::SECRET_NAMES, true);
+    }
+
     public function isVideo(): bool
     {
         return in_array($this->name, self::VIDEO_NAMES, true) || $this->type === 'video';

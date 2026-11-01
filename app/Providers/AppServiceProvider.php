@@ -5,6 +5,7 @@ namespace App\Providers;
 use Illuminate\Pagination\Paginator;
 use Illuminate\Support\Facades\Blade;
 use Illuminate\Support\ServiceProvider;
+use Laravel\Sanctum\Sanctum;
 
 class AppServiceProvider extends ServiceProvider
 {
@@ -21,6 +22,9 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        // Token của tài khoản bị khoá không còn dùng được
+        Sanctum::authenticateAccessTokensUsing(fn ($token, bool $isValid) => $isValid && (bool) $token->tokenable?->active);
+
         // Blade directive: @sharedAsset('products/abc.jpg')
         // → asset('shared/products/abc.jpg')
         Blade::directive('sharedAsset', function ($path) {

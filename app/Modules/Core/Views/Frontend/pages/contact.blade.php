@@ -53,7 +53,7 @@
                 <div class="map-box">
                     {{-- Mã nhúng Google Maps do admin nhập ở Cài đặt (google_map) --}}
                     @if(!empty($site['google_map']) && str_contains($site['google_map'], '<iframe'))
-                        {!! $site['google_map'] !!}
+                        {!! clean_html($site['google_map']) !!}
                     @elseif(!empty($site['address']))
                         <iframe src="https://www.google.com/maps?q={{ urlencode($site['address']) }}&output=embed" loading="lazy" title="Bản đồ"></iframe>
                     @endif
