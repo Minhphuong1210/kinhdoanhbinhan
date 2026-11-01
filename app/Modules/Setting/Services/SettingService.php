@@ -3,7 +3,7 @@
 namespace App\Modules\Setting\Services;
 
 use App\Models\Setting;
-use App\Modules\Core\ViewComposers\FrontendLayoutComposer;
+use App\Modules\Home\ViewComposers\FrontendLayoutComposer;
 use App\Modules\Setting\Repositories\SettingRepository;
 use App\Modules\Shared\Services\BaseService;
 use Illuminate\Database\Eloquent\Model;

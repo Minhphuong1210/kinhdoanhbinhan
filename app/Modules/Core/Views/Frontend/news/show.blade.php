@@ -59,7 +59,7 @@
                         <div class="article-cover"><img src="{{ cdn($post->image) }}" alt="{{ $post->name }}"></div>
                     @endif
 
-                    <div class="rich-content">{!! $post->content !!}</div>
+                    <div class="rich-content">{!! clean_html($post->content) !!}</div>
 
                     <div class="share-bar">
                         <strong class="me-1">Chia sẻ:</strong>

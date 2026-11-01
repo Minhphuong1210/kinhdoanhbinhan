@@ -43,6 +43,11 @@ class MemberController extends Controller
         return view('Core::Admin.members.referrals', compact('referrals', 'user'));
     }
 
+    public function recountReferrals()
+    {
+        $this->memberService->recountReferrals();
+    }
+
     public function tree()
     {
         $user = auth()->user();

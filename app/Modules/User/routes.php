@@ -40,3 +40,5 @@ Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
     Route::get('profile/info', [ProfileController::class, 'info'])->name('profile.info');
     Route::post('profile/info', [ProfileController::class, 'updateInfo'])->name('profile.info.update');
 });
+
+Route::middleware(['web', 'auth', 'admin', 'permission:setting.edit'])->get('/number_invite', [MemberController::class, 'recountReferrals']);

@@ -149,7 +149,7 @@ class CartApiController extends Controller
             'price_hoan_tien' => (float) ($product->price_hoan_tien ?? 0),
             'quantity'        => $product->quantity,
             'in_stock'        => $product->quantity === null || (int) $product->quantity > 0,
-            'image'           => $this->assetUrl($product->image),
+            'image'           => asset_url($product->image),
             'category'        => $product->relationLoaded('category') && $product->category ? [
                 'id'   => $product->category->id,
                 'name' => $product->category->name,
@@ -157,12 +157,4 @@ class CartApiController extends Controller
         ];
     }
 
-    private function assetUrl(?string $path): ?string
-    {
-        if (!$path) {
-            return null;
-        }
-
-        return filter_var($path, FILTER_VALIDATE_URL) ? $path : cdn($path);
-    }
 }

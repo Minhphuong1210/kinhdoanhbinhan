@@ -217,10 +217,10 @@
             </ul>
             <div class="tab-content">
                 <div class="tab-pane fade show active rich-content" id="tab-desc" role="tabpanel">
-                    {!! $product->content ?: '<p class="text-muted">Thông tin sản phẩm đang được cập nhật.</p>' !!}
+                    {!! clean_html($product->content ?: '<p class="text-muted">Thông tin sản phẩm đang được cập nhật.</p>') !!}
                 </div>
                 @if($product->instructions)
-                    <div class="tab-pane fade rich-content" id="tab-guide" role="tabpanel">{!! $product->instructions !!}</div>
+                    <div class="tab-pane fade rich-content" id="tab-guide" role="tabpanel">{!! clean_html($product->instructions) !!}</div>
                 @endif
                 @if($licenses)
                     <div class="tab-pane fade" id="tab-license" role="tabpanel">

@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Core\Providers;
+namespace App\Modules\Home\Providers;
 
 use App\Modules\CategoryPost\Models\CategoryPost;
 use Illuminate\Support\Facades\View;

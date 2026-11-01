@@ -1,20 +1,18 @@
 <?php
 
-
-namespace App\Modules\Sms\Http\Controller;
+namespace App\Modules\Sms\Controllers\Api;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Modules\Sms\Services\ESMSService;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 
 class SMSController extends Controller
 {
-    protected $sms;
+    private const OTP_MINUTES = 2;
 
-    public function __construct(ESMSService $sms)
+    public function __construct(private readonly ESMSService $sms)
     {
-        $this->sms = $sms;
     }
 
     public function test()
@@ -24,15 +22,15 @@ class SMSController extends Controller
 
     public function sendOtp(Request $request)
     {
-        $request->validate([
-            'phone' => 'required'
+        $data = $request->validate([
+            'phone' => ['required', 'string', 'regex:/^(0|\+84)[0-9]{9}$/'],
         ]);
 
-        $otp = rand(100000, 999999);
+        $otp = random_int(100000, 999999);
 
-        Cache::put('otp_' . $request->phone, $otp, now()->addMinutes(2));
+        Cache::put('otp_' . $data['phone'], $otp, now()->addMinutes(self::OTP_MINUTES));
 
-        $result = $this->sms->sendOTP($request->phone, $otp);
+        $result = $this->sms->sendOTP($data['phone'], $otp);
 
         if ($result && isset($result['CodeResult']) && $result['CodeResult'] == 100) {
             return response()->json(['message' => 'Gửi thành công']);
@@ -43,15 +41,16 @@ class SMSController extends Controller
 
     public function verifyOtp(Request $request)
     {
-        $request->validate([
-            'phone' => 'required',
-            'otp' => 'required'
+        $data = $request->validate([
+            'phone' => ['required', 'string'],
+            'otp' => ['required', 'digits:6'],
         ]);
 
-        $cachedOtp = Cache::get('otp_' . $request->phone);
+        $cachedOtp = Cache::get('otp_' . $data['phone']);
 
-        if ($cachedOtp && $cachedOtp == $request->otp) {
-            Cache::forget('otp_' . $request->phone);
+        if ($cachedOtp && hash_equals((string) $cachedOtp, $data['otp'])) {
+            Cache::forget('otp_' . $data['phone']);
+
             return response()->json(['message' => 'Xác minh thành công', 'status' => true]);
         }
 

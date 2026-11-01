@@ -50,6 +50,17 @@ class MemberService
             ]);
     }
 
+    /** Đếm lại số thành viên giới thiệu đã tham gia của toàn bộ user */
+    public function recountReferrals(): void
+    {
+        User::chunkById(500, function ($users) {
+            foreach ($users as $user) {
+                $user->so_thanh_vien_gt = User::where('invite_by', $user->id)->whereNotNull('ngay_tham_gia')->count();
+                $user->save();
+            }
+        });
+    }
+
     public function referrals(User $user): Collection
     {
         return $this->users->referralsWithMonthlyPurchase($user);

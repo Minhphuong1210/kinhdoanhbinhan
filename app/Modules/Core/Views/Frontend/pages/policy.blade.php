@@ -43,7 +43,7 @@
             <div class="col-lg-8 order-1 order-lg-2">
                 <article class="policy-body">
                     @if($policy->image)<img src="{{ cdn($policy->image) }}" alt="{{ $policy->title }}" class="img-fluid rounded mb-4">@endif
-                    <div class="rich-content">{!! $policy->renderContent($site) !!}</div>
+                    <div class="rich-content">{!! clean_html($policy->renderContent($site)) !!}</div>
                     <p class="policy-updated mt-4 mb-0"><i class="far fa-clock me-1"></i>Cập nhật lần cuối: {{ $policy->updated_at?->format('d/m/Y') }}</p>
                 </article>
                 <div class="card-soft p-3 mt-3 d-flex flex-wrap align-items-center justify-content-between gap-2">

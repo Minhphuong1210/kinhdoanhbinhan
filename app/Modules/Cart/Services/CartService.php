@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Modules\Cart\Exceptions\CartException;
 use App\Modules\Cart\Models\CartItem;
+use App\Modules\Cart\Repositories\CartRepository;
 use App\Services\OrderService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Collection;
@@ -21,6 +22,10 @@ class CartService
     public const MODE_CUSTOM_CO_CHE  = 'custom_co_che';
     public const MODES               = [self::MODE_CUSTOM, self::MODE_CUSTOM_CO_CHE];
     public const MAX_QTY_PER_PRODUCT = 99;
+
+    public function __construct(private readonly CartRepository $items)
+    {
+    }
 
     /**
      * Sản phẩm được phép chọn trong combo:
@@ -43,10 +48,7 @@ class CartService
      */
     public function groups(User $user): Collection
     {
-        $items = CartItem::with(['product.category', 'product.coCheHoanPhi', 'parentProduct'])
-            ->where('user_id', $user->id)
-            ->orderBy('id')
-            ->get();
+        $items = $this->items->itemsWithProducts($user);
 
         return $items
             ->filter(fn (CartItem $item) => $item->parentProduct !== null)
@@ -69,19 +71,13 @@ class CartService
         $product = $this->findSelectableProduct($parent, $mode, $productId);
 
         return DB::transaction(function () use ($user, $parent, $product, $quantity, $mode) {
-            $groupMode = CartItem::where('user_id', $user->id)
-                ->where('parent_product_id', $parent->id)
-                ->value('mode');
+            $groupMode = $this->items->groupMode($user, $parent->id);
 
             if ($groupMode && $groupMode !== $mode) {
                 throw new CartException('Giỏ hàng của combo này đang ở chế độ khác. Vui lòng xoá giỏ của combo trước khi đổi chế độ.');
             }
 
-            $item = CartItem::where('user_id', $user->id)
-                ->where('parent_product_id', $parent->id)
-                ->where('product_id', $product->id)
-                ->lockForUpdate()
-                ->first()
+            $item = $this->items->lockItem($user, $parent->id, $product->id)
                 ?? new CartItem([
                     'user_id'           => $user->id,
                     'parent_product_id' => $parent->id,
@@ -127,9 +123,7 @@ class CartService
      */
     public function clear(User $user, ?int $parentProductId = null): void
     {
-        CartItem::where('user_id', $user->id)
-            ->when($parentProductId, fn ($q) => $q->where('parent_product_id', $parentProductId))
-            ->delete();
+        $this->items->clear($user, $parentProductId);
     }
 
     /**
@@ -141,15 +135,12 @@ class CartService
             return;
         }
 
-        CartItem::where('user_id', $user->id)
-            ->where('parent_product_id', $parentProductId)
-            ->whereIn('product_id', $productIds)
-            ->delete();
+        $this->items->removeProducts($user, $parentProductId, $productIds);
     }
 
     public function count(User $user): int
     {
-        return (int) CartItem::where('user_id', $user->id)->sum('quantity');
+        return $this->items->totalQuantity($user);
     }
 
     private function buildGroup(Collection $items): array
@@ -208,7 +199,7 @@ class CartService
 
     private function findUserItem(User $user, int $itemId): CartItem
     {
-        $item = CartItem::with('parentProduct')->where('user_id', $user->id)->find($itemId);
+        $item = $this->items->findOfUser($user, $itemId);
 
         if (!$item) {
             throw new CartException('Không tìm thấy sản phẩm trong giỏ hàng.', 404);

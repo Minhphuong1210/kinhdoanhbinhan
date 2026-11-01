@@ -3,6 +3,7 @@
 use App\Modules\Product\Controllers\Api\ProductApiController;
 use App\Modules\Product\Controllers\Admin\ProductController;
 use App\Modules\Product\Controllers\Admin\CoCheHoanPhiController;
+use App\Modules\Product\Controllers\Frontend\ProductController as FrontendProductController;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('api')->middleware('api')->group(function () {
@@ -11,12 +12,6 @@ Route::prefix('api')->middleware('api')->group(function () {
     Route::get('/products', [ProductApiController::class, 'products']);
     Route::get('/products/{product}/san-pham-tu-chon', [ProductApiController::class, 'sanPhamTuChon'])->whereNumber('product');
     Route::get('/products/{slug}', [ProductApiController::class, 'productDetail']);
-    Route::get('/news-categories', [ProductApiController::class, 'newsCategories']);
-    Route::get('/news', [ProductApiController::class, 'news']);
-    Route::get('/news/{slug}', [ProductApiController::class, 'newsDetail']);
-
-Route::get('/gioi-thieu-chung-toi', [ProductApiController::class, 'gioiThieuChungToi']);
-
 });
 
 Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'web'])->group(function () {
@@ -32,3 +27,7 @@ Route::prefix('admin')->name('admin.')->middleware(['auth', 'admin', 'web'])->gr
 
 });
 
+Route::middleware(['web'])->name('frontend.')->group(function () {
+    Route::get('/san-pham', [FrontendProductController::class, 'index'])->name('product.index');
+    Route::get('/san-pham/{slug}', [FrontendProductController::class, 'show'])->name('product.show');
+});

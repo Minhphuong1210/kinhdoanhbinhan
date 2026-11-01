@@ -1,6 +1,6 @@
 <?php
 
-namespace App\Modules\Core\ViewComposers;
+namespace App\Modules\Home\ViewComposers;
 
 use App\Modules\Category\Models\Category;
 use App\Modules\ChinhSach\Models\ChinhSach;

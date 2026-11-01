@@ -11,8 +11,8 @@ class ChinhSach extends Model
     protected static function booted(): void
     {
         // Chân trang website hiển thị danh sách chính sách → xoá cache khi sửa
-        static::saved(fn () => \App\Modules\Core\ViewComposers\FrontendLayoutComposer::forget());
-        static::deleted(fn () => \App\Modules\Core\ViewComposers\FrontendLayoutComposer::forget());
+        static::saved(fn () => \App\Modules\Home\ViewComposers\FrontendLayoutComposer::forget());
+        static::deleted(fn () => \App\Modules\Home\ViewComposers\FrontendLayoutComposer::forget());
     }
 
     /** Slug trên URL: dùng cột url, chưa có thì sinh từ tiêu đề */

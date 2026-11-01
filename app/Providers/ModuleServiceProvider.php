@@ -39,7 +39,7 @@ class ModuleServiceProvider extends ServiceProvider
                 'Core::Frontend.home.index',
                 'Core::Frontend.products.show',
                 'Core::Frontend.pages.*',
-            ], \App\Modules\Core\ViewComposers\FrontendLayoutComposer::class);
+            ], \App\Modules\Home\ViewComposers\FrontendLayoutComposer::class);
         } catch (\Throwable $e) {
             // Bỏ qua lỗi DB khi chạy migrate/artisan
         }

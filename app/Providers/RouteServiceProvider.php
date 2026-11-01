@@ -28,6 +28,10 @@ class RouteServiceProvider extends ServiceProvider
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
 
+        RateLimiter::for('web', function (Request $request) {
+            return Limit::perMinute(300)->by($request->user()?->id ?: $request->ip());
+        });
+
         // Đăng nhập: giới hạn theo tài khoản + IP và theo IP để chống dò mật khẩu
         RateLimiter::for('login', function (Request $request) {
             $login = (string) ($request->input('login') ?? $request->input('email'));

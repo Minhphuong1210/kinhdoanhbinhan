@@ -52,7 +52,7 @@
             <div class="col-lg-6">
                 <span class="eyebrow">Về chúng tôi</span>
                 <h2 class="fw-bold mb-3">{{ $about?->name ?? ($site['name'] ?? '') }}</h2>
-                <div class="rich-content">{!! $about?->content ?: '<p>Thông tin giới thiệu đang được cập nhật.</p>' !!}</div>
+                <div class="rich-content">{!! clean_html($about?->content ?: '<p>Thông tin giới thiệu đang được cập nhật.</p>') !!}</div>
             </div>
         </div>
 
