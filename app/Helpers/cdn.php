@@ -92,7 +92,7 @@ if (!function_exists('cdn_delete')) {
 
         // Nếu là URL full thì convert về path
         if (filter_var($path, FILTER_VALIDATE_URL)) {
-            $path = parse_url($path, PHP_URL_PATH);
+            $path = rawurldecode((string) parse_url($path, PHP_URL_PATH));
             $path = preg_replace('#^/shared/#', '', $path);
         }
 

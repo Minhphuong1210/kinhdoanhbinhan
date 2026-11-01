@@ -52,7 +52,7 @@ class GioiThieuApiService
                     ],
 
                     'image' => [
-                        'url' => 'https://cdn.kinhdoanhbinhan.com/shared/uploads/1788493393410_8942408245054837428_8942408245054837428_032ac36dd57e4ab14c076b738574a5ad.jpg',
+                        'url' => cdn('uploads/1788493393410_8942408245054837428_8942408245054837428_032ac36dd57e4ab14c076b738574a5ad.jpg'),
                         'alt' => 'Đồng hành cùng doanh nghiệp phát triển bền vững',
                     ],
                 ],
