@@ -41,18 +41,6 @@ Route::middleware(['web', 'auth', 'admin', 'permission:setting.edit'])->get('/de
         $order->save();
     }
 });
-Route::middleware(['web', 'auth', 'admin', 'permission:setting.edit'])->get('update_tien', function () {
-    $yeuCauRutTiens = App\Models\YeuCauRutTien::all();
-
-    foreach ($yeuCauRutTiens as $yeuCauRutTien) {
-        $tien_10_phan_tram  = ($yeuCauRutTien->so_tien * 10) / 100;
-        $tien_1_5_phan_tram = ($yeuCauRutTien->so_tien * 1.5) / 100;
-       
-        $yeuCauRutTien->{'10_phan_tram_so_tien'}  = $tien_10_phan_tram;
-        $yeuCauRutTien->{'1_5_phan_tram_so_tien'} = $tien_1_5_phan_tram;
-        $yeuCauRutTien->save();
-    }
-});
 
 // ============================================================
 //  Frontend — trang công khai
@@ -86,14 +74,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web'])->group(function () {
         Route::post('shop/confirm', [\App\Modules\Core\Controllers\Admin\ShopController::class, 'confirm'])->name('shop.confirm');
 
         // Tài chính cá nhân
-        Route::get('my-transactions', [\App\Modules\Core\Controllers\Admin\UserFinanceController::class, 'transactions'])->name('my-transactions');
-        Route::get('my-withdrawals', [\App\Modules\Core\Controllers\Admin\UserFinanceController::class, 'withdrawals'])->name('my-withdrawals');
-        Route::post('my-withdrawals', [\App\Modules\Core\Controllers\Admin\UserFinanceController::class, 'requestWithdrawal'])->name('my-withdrawals.store');
-        Route::get('my-income', [\App\Modules\Core\Controllers\Admin\IncomeController::class, 'index'])->name('my-income');
         Route::get('thank-you/{orderId}', [\App\Modules\Core\Controllers\Admin\ShopController::class, 'thankYou'])->name('thank-you');
-        Route::get('chuyen-diem', [\App\Modules\Core\Controllers\Admin\UserFinanceController::class, 'transferForm'])->name('chuyen-diem');
-        Route::post('chuyen-diem', [\App\Modules\Core\Controllers\Admin\UserFinanceController::class, 'processTransfer'])->name('chuyen-diem.store');
-        Route::get('ajax/lookup-user', [\App\Modules\Core\Controllers\Admin\UserFinanceController::class, 'lookupUser'])->name('ajax.lookup-user');
 
     });
 

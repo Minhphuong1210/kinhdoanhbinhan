@@ -91,6 +91,12 @@ class PayosService
         return $data['data']['status'] ?? self::STATUS_PENDING;
     }
 
+    /** Webhook PayOS: chữ ký HMAC của phần data, sai chữ ký thì không xử lý */
+    public function isValidWebhook(array $data, ?string $signature): bool
+    {
+        return $signature !== null && $signature !== '' && hash_equals($this->signData($data), $signature);
+    }
+
     private function http()
     {
         return Http::acceptJson()->withHeaders([

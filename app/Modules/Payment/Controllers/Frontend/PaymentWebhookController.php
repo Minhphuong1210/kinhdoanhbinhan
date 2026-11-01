@@ -5,14 +5,17 @@ namespace App\Modules\Payment\Controllers\Frontend;
 use App\Http\Controllers\Controller;
 use App\Modules\Payment\Exceptions\PaymentException;
 use App\Modules\Payment\Services\PaymentWebhookService;
+use App\Modules\Payment\Services\PayosService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class PaymentWebhookController extends Controller
 {
-    public function __construct(private readonly PaymentWebhookService $webhookService)
-    {
+    public function __construct(
+        private readonly PaymentWebhookService $webhookService,
+        private readonly PayosService $payos
+    ) {
     }
 
     /**
@@ -22,7 +25,15 @@ class PaymentWebhookController extends Controller
     {
         Log::info('[PayOS webhook]', $request->all());
 
-        $orderCode = $request->input('data.orderCode');
+        $data = (array) $request->input('data', []);
+
+        if (!$this->payos->isValidWebhook($data, $request->input('signature'))) {
+            Log::warning('[PayOS webhook] sai chữ ký', ['ip' => $request->ip()]);
+
+            return $this->reply(-1, 'Sai chữ ký', 401);
+        }
+
+        $orderCode = $data['orderCode'] ?? null;
 
         if (!$orderCode) {
             return $this->reply(-1, 'Thiếu orderCode', 400);
@@ -32,7 +43,7 @@ class PaymentWebhookController extends Controller
             $result = $this->webhookService->handle(
                 $orderCode,
                 $request->input('code'),
-                (array) $request->input('data', [])
+                $data
             );
         } catch (PaymentException $e) {
             Log::error('[PayOS webhook] lỗi: ' . $e->getMessage());
@@ -41,7 +52,7 @@ class PaymentWebhookController extends Controller
         } catch (\Throwable $e) {
             Log::error('[PayOS webhook] lỗi: ' . $e->getMessage());
 
-            return $this->reply(-1, $e->getMessage(), 500);
+            return $this->reply(-1, 'Lỗi xử lý', 500);
         }
 
         return match ($result) {

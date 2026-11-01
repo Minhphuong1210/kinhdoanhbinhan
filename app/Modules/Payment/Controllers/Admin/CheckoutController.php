@@ -37,12 +37,19 @@ class CheckoutController extends Controller
             $message = match (true) {
                 $e->getCode() === 503 => 'Hệ thống PayOS đang gián đoạn. Xin lỗi vì sự bất tiện.',
                 $e instanceof PaymentException &&$e->getCode() === 0 => $e->getMessage(),
-                default => "Lỗi: {$e->getMessage()} | Code: {$e->getCode()}",
+                default => $this->unexpectedError($e),
             };
 
             return redirect(CreatePaymentLinkRequest::buyUrl($request->all()))
                 ->withInput()
                 ->with('error', $message);
         }
+    }
+
+    private function unexpectedError(\Throwable $e): string
+    {
+        report($e);
+
+        return 'Không tạo được link thanh toán, vui lòng thử lại.';
     }
 }

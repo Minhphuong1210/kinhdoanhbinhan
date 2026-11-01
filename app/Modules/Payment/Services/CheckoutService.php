@@ -6,6 +6,7 @@ use App\Models\Product;
 use App\Models\User;
 use App\Modules\Payment\Exceptions\PaymentException;
 use App\Modules\Payment\Models\LichSuPayos;
+use App\Modules\Payment\Repositories\PaymentRepository;
 use App\Services\OrderService;
 use Illuminate\Support\Arr;
 
@@ -22,8 +23,10 @@ class CheckoutService
     /** Đánh dấu trong product_json: lệnh nạp tạo từ app → đơn tạo ở webhook là đơn app */
     public const FROM_APP_KEY      = 'from_app';
 
-    public function __construct(private readonly PayosService $payos)
-    {
+    public function __construct(
+        private readonly PayosService $payos,
+        private readonly PaymentRepository $payments
+    ) {
     }
 
     /**
@@ -88,7 +91,7 @@ class CheckoutService
         $orderCode = $this->payos->generateOrderCode();
         $response  = $this->payos->createPaymentLink($orderCode, $amount, $description, $user->name ?? '');
 
-        return LichSuPayos::create([
+        return $this->payments->create([
             'admin_id'             => $user->id,
             'ma_don'               => $orderCode,
             'loai_don'             => 'Nạp tiền',

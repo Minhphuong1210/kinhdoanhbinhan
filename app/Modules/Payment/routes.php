@@ -32,7 +32,8 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
 
     // Đồng bộ thủ công trạng thái từ PayOS API
     Route::get('payment-history/cap-nhat', [PaymentHistoryController::class, 'capNhatTrangThai'])
-        ->name('payment-history.cap-nhat');
+        ->name('payment-history.cap-nhat')
+        ->middleware('throttle:5,1');
 
     // Form nạp tiền (hiển thị trong admin panel)
 //    Route::get('nap-tien', function () {
@@ -40,7 +41,7 @@ Route::prefix('admin')->name('admin.')->middleware(['web', 'auth', 'admin'])->gr
 //    })->name('nap-tien');
 });
 
-Route::post('payos-webhook',[PaymentWebhookController::class, 'webhook'])->name('webhook');
+Route::post('payos-webhook', [PaymentWebhookController::class, 'webhook'])->name('webhook')->middleware('throttle:120,1');
 
 
 //Route::get('/test-payos-order/{id}', function ($id) {

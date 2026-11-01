@@ -4,7 +4,7 @@ namespace App\Modules\Payment\Services;
 
 use App\Models\User;
 use App\Modules\Payment\Models\LichSuPayos;
-use Carbon\Carbon;
+use App\Modules\Payment\Repositories\PaymentRepository;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
@@ -13,6 +13,7 @@ class PaymentHistoryService
 {
     public function __construct(
         private readonly PayosService $payos,
+        private readonly PaymentRepository $payments,
         private readonly PaymentWebhookService $webhookService
     ) {
     }
@@ -22,18 +23,7 @@ class PaymentHistoryService
      */
     public function list(array $filters, User $viewer): array
     {
-        $query = LichSuPayos::with('nguoiNap')
-            ->latest()
-            ->when((int) ($viewer->super_admin ?? 0) !== 1, fn ($q) => $q->where('admin_id', $viewer->id))
-            ->when($filters['trang_thai'] ?? null, fn ($q, $v) => $q->where('trang_thai', $v))
-            ->when($filters['tu_ngay'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '>=', $v))
-            ->when($filters['den_ngay'] ?? null, fn ($q, $v) => $q->whereDate('created_at', '<=', $v))
-            ->when($filters['description'] ?? null, fn ($q, $v) => $q->where('description', 'like', '%' . $v . '%'));
-
-        $tongTien = (clone $query)->where('trang_thai', LichSuPayos::STATUS_SUCCESS)->sum('so_tien');
-        $items    = $query->paginate(20)->withQueryString();
-
-        return [$items, $tongTien];
+        return $this->payments->paginateWithTotal($filters, $viewer);
     }
 
     /**
@@ -41,7 +31,7 @@ class PaymentHistoryService
      */
     public function cancel(int|string $orderCode, ?string $paymentId): void
     {
-        $record = LichSuPayos::where('ma_don', $orderCode)->first();
+        $record = $this->payments->findByOrderCode($orderCode);
 
         if ($record && !in_array($record->trang_thai, [LichSuPayos::STATUS_SUCCESS, LichSuPayos::STATUS_CANCELLED], true)) {
             $record->update([
@@ -59,7 +49,7 @@ class PaymentHistoryService
      */
     public function markReturned(int|string $orderCode, ?string $paymentId): bool
     {
-        $record = LichSuPayos::where('ma_don', $orderCode)->first();
+        $record = $this->payments->findByOrderCode($orderCode);
 
         if (!$record) {
             return false;
@@ -77,10 +67,7 @@ class PaymentHistoryService
      */
     public function syncPending(): int
     {
-        $pending = LichSuPayos::where('trang_thai', LichSuPayos::STATUS_PENDING)
-            ->whereBetween('created_at', [Carbon::yesterday(), Carbon::now()])
-            ->orderByDesc('created_at')
-            ->get();
+        $pending = $this->payments->recentPending();
 
         $updated = 0;
 
@@ -107,10 +94,7 @@ class PaymentHistoryService
     {
         return DB::transaction(function () use ($item) {
             // Khoá lại để không xử lý trùng với webhook đang chạy song song
-            $locked = LichSuPayos::whereKey($item->id)
-                ->where('trang_thai', LichSuPayos::STATUS_PENDING)
-                ->lockForUpdate()
-                ->first();
+            $locked = $this->payments->lockPending($item->id);
 
             if (!$locked) {
                 return false;

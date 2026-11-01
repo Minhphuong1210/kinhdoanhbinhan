@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Modules\Cart\Services\CartService;
 use App\Modules\Payment\Exceptions\PaymentException;
 use App\Modules\Payment\Models\LichSuPayos;
+use App\Modules\Payment\Repositories\PaymentRepository;
 use App\Services\OrderService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -31,6 +32,7 @@ class PaymentWebhookService
 
     public function __construct(
         private readonly OrderService $orderService,
+        private readonly PaymentRepository $payments,
         private readonly CartService $cartService
     ) {
     }
@@ -41,7 +43,7 @@ class PaymentWebhookService
     public function handle(int|string $orderCode, ?string $code, array $data): string
     {
         return DB::transaction(function () use ($orderCode, $code, $data) {
-            $payment = LichSuPayos::where('ma_don', $orderCode)->lockForUpdate()->first();
+            $payment = $this->payments->lockByOrderCode($orderCode);
 
             if (!$payment) {
                 return self::RESULT_NOT_FOUND;
